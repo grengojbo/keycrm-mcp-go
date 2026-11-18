@@ -20,7 +20,7 @@ lint:
 vet:
 	go vet ./...
 
-# Поки що нічого не генерується; з етапу 1 тут з'явиться клієнт pkg/keycrm/api.
+# Перегенерувати клієнт pkg/keycrm/api з pkg/keycrm/api.yaml.
 generate:
 	go generate ./...
 

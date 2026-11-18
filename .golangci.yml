@@ -21,6 +21,14 @@ linters:
       template: "SPDX-License-Identifier: AGPL-3.0-only"
   exclusions:
     generated: lax
+    rules:
+      # Інструменти передають відповідь згенерованого клієнта прямо в
+      # listing.Raw / listing.Object, які читають і закривають тіло; bodyclose
+      # не простежує закриття в іншому пакеті. Що кожен виклик API йде через
+      # них, перевіряє TestToolsCloseResponses (internal/tools/contract_test.go).
+      - path: ^internal/tools/
+        linters:
+          - bodyclose
 
 formatters:
   enable:

@@ -32,3 +32,8 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Артефакти збірки
+/bin/
+/dist/
+/keycrm-mcp

@@ -1,0 +1,9 @@
+# Конфігурація генератора клієнта keyCRM (oapi-codegen v2.8.2).
+package: api
+output: api/api.gen.go
+generate:
+  client: true
+  models: true
+output-options:
+  overlay:
+    path: overlay.yaml

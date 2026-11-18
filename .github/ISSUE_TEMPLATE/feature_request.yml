@@ -1,0 +1,24 @@
+name: Запропонувати можливість
+description: Новий інструмент, toolset або зміна поведінки
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Сервер працює лише з офіційним публічним API keyCRM (`https://openapi.keycrm.app/v1`). Якщо потрібної операції немає в API, ми не зможемо її додати.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Яку задачу треба розв'язати
+      description: Опишіть сценарій, а не лише рішення
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Пропозиція
+      description: Які інструменти чи параметри; які операції API keyCRM задіяні
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Альтернативи

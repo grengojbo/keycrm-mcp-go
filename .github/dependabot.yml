@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    # Нові версії беремо щонайменше через 7 днів після виходу — захист від скомпрометованих релізів.
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "build"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "build"

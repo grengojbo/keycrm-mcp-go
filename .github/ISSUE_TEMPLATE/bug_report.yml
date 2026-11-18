@@ -1,0 +1,42 @@
+name: Повідомити про помилку
+description: Щось працює не так, як описано в документації
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Дякуємо за звіт! **Не додавайте API-ключі, токени, телефони, email чи інші дані клієнтів** — замініть їх на `***`.
+        Вразливості безпеки повідомляйте приватно — див. [SECURITY.md](https://github.com/grengojbo/keycrm-mcp-go/blob/main/SECURITY.md).
+  - type: input
+    id: version
+    attributes:
+      label: Версія
+      description: Вивід `keycrm-mcp --version`
+      placeholder: keycrm-mcp v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Середовище
+      description: ОС, транспорт (stdio / HTTP), MCP-клієнт
+      placeholder: macOS 26, stdio
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Що сталося
+      description: Інструмент, параметри (без персональних даних) і результат
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Що очікувалося
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Логи
+      description: Фрагмент stderr. Перевірте, що в ньому немає секретів і персональних даних.
+      render: text

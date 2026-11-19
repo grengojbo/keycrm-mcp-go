@@ -25,6 +25,7 @@ var sensitiveKeys = map[string]bool{
 	"buyer_comment":       true,
 	"manager_comment":     true,
 	"gift_message":        true,
+	"supplier":            true, // постачальник прибуткової накладної: часто ФОП, тобто ім'я людини
 }
 
 // Value повертає копію v, придатну для логів: телефони й email частково

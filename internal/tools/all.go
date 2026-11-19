@@ -13,6 +13,7 @@ import (
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/orders"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/payments"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/pipelines"
+	"github.com/grengojbo/keycrm-mcp-go/internal/tools/receipts"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/reference"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/stock"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/tasks"
@@ -29,6 +30,7 @@ func All() []server.Toolset {
 		calls.Toolset,
 		catalog.Toolset,
 		stock.Toolset,
+		receipts.Toolset,
 		payments.Toolset,
 		files.Toolset,
 		tasks.Toolset,

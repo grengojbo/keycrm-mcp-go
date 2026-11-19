@@ -75,6 +75,7 @@ func TestRedactStructAndContexts(t *testing.T) {
 		BuyerEmail string    `json:"buyer_email"`
 		Comment    string    `json:"manager_comment"`
 		StatusID   int       `json:"status_id"`
+		Supplier   string    `json:"supplier"`
 	}
 	v := Value(input{
 		Products:   []product{{Name: "Філамент PLA", SKU: "PLA-1"}},
@@ -83,13 +84,14 @@ func TestRedactStructAndContexts(t *testing.T) {
 		BuyerEmail: "ivan@example.com",
 		Comment:    "VIP",
 		StatusID:   3,
+		Supplier:   "ФОП Коваленко",
 	})
 	b, err := json.Marshal(v)
 	if err != nil {
 		t.Fatal(err)
 	}
 	s := string(b)
-	for _, leak := range []string{"Петро", "Київ", "+380501112233", "дзвонити", "+380671234567", "ivan@", "VIP"} {
+	for _, leak := range []string{"Петро", "Київ", "+380501112233", "дзвонити", "+380671234567", "ivan@", "VIP", "Коваленко"} {
 		if strings.Contains(s, leak) {
 			t.Errorf("у результаті лишилось %q: %s", leak, s)
 		}

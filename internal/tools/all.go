@@ -5,6 +5,7 @@ package tools
 
 import (
 	"github.com/grengojbo/keycrm-mcp-go/internal/server"
+	"github.com/grengojbo/keycrm-mcp-go/internal/tools/catalog"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/orders"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/reference"
 )
@@ -15,5 +16,6 @@ func All() []server.Toolset {
 	return []server.Toolset{
 		reference.Toolset,
 		orders.Toolset,
+		catalog.Toolset,
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/catalog"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/orders"
 	"github.com/grengojbo/keycrm-mcp-go/internal/tools/reference"
+	"github.com/grengojbo/keycrm-mcp-go/internal/tools/stock"
 )
 
 // All повертає всі групи інструментів у порядку реєстрації.
@@ -17,5 +18,6 @@ func All() []server.Toolset {
 		reference.Toolset,
 		orders.Toolset,
 		catalog.Toolset,
+		stock.Toolset,
 	}
 }

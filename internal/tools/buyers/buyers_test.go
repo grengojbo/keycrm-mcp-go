@@ -24,7 +24,8 @@ func connect(t *testing.T, h http.HandlerFunc) *mcp.ClientSession {
 }
 
 const oneBuyer = `{"total":1,"current_page":1,"next_page_url":null,"data":[
-	{"id":4545,"full_name":"Іван Петренко","phone":["+380671234567"],"email":["ivan@example.com"],"note":"VIP","created_at":"2026-11-18 10:00:00"}]}`
+	{"id":4545,"full_name":"Іван Петренко","phone":["+380671234567"],"email":["ivan@example.com"],"note":"VIP",
+	 "orders_count":2,"orders_sum":"20.00","has_duplicates":1,"created_at":"2026-11-18 10:00:00"}]}`
 
 func TestFindBuyerByPhoneUsesFilter(t *testing.T) {
 	for _, phone := range []string{"067 123 45 67", "+38 (067) 123-45-67", "380671234567"} {
@@ -37,7 +38,11 @@ func TestFindBuyerByPhoneUsesFilter(t *testing.T) {
 				_, _ = io.WriteString(w, oneBuyer)
 			})
 			out := server.Decode[FindBuyerResult](t, server.CallTool(t, cs, "find_buyer", map[string]any{"phone": phone}))
-			want := BuyerSummary{ID: 4545, FullName: "Іван Петренко", Phone: []string{"+380671234567"}, Email: []string{"ivan@example.com"}, CreatedAt: "2026-11-18 10:00:00"}
+			count, sum := flexNumber(2), flexNumber(20)
+			want := BuyerSummary{
+				ID: 4545, FullName: "Іван Петренко", Phone: []string{"+380671234567"}, Email: []string{"ivan@example.com"},
+				OrdersCount: &count, OrdersSum: &sum, CreatedAt: "2026-11-18 10:00:00",
+			}
 			if out.Phone != "+380671234567" || len(out.Items) != 1 || !reflect.DeepEqual(out.Items[0], want) {
 				t.Errorf("результат: %+v", out)
 			}
@@ -260,5 +265,32 @@ func TestImportBuyersSendsBody(t *testing.T) {
 	}}))
 	if out["status"] != true || out["submitted"] != float64(2) {
 		t.Errorf("результат: %v", out)
+	}
+}
+
+func TestBuyerSummaryOrders(t *testing.T) {
+	cs := connect(t, func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, `{"total":3,"current_page":1,"next_page_url":null,"data":[
+			{"id":1,"full_name":"Рядок","orders_count":"3","orders_sum":"1300.50"},
+			{"id":2,"full_name":"Нуль","orders_count":0,"orders_sum":0},
+			{"id":3,"full_name":"Без полів"}]}`)
+	})
+	res := server.CallTool(t, cs, "list_buyers", map[string]any{})
+	out := server.Decode[listing.Result[BuyerSummary]](t, res)
+	if len(out.Items) != 3 {
+		t.Fatalf("елементи: %+v", out.Items)
+	}
+	if a := out.Items[0]; a.OrdersCount == nil || *a.OrdersCount != 3 || a.OrdersSum == nil || *a.OrdersSum != 1300.5 {
+		t.Errorf("рядкові значення: %+v", a)
+	}
+	if b := out.Items[1]; b.OrdersCount == nil || *b.OrdersCount != 0 {
+		t.Errorf("нуль має лишатися в результаті: %+v", b)
+	}
+	if c := out.Items[2]; c.OrdersCount != nil || c.OrdersSum != nil {
+		t.Errorf("без полів: %+v", c)
+	}
+	text := server.ResultText(res)
+	if !strings.Contains(text, `"orders_sum":1300.5`) || strings.Contains(text, "has_duplicates") {
+		t.Errorf("сума має бути числом, зайвих полів немає: %s", text)
 	}
 }

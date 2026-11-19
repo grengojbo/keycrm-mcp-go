@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/grengojbo/keycrm-mcp-go/internal/server"
@@ -31,13 +32,34 @@ var defaultInclude = []string{"manager", "shipping", "company", "loyalty", "cust
 type Object = map[string]any
 
 // BuyerSummary — компактна проєкція покупця для list_buyers і find_buyer.
-// Повні дані — через get_buyer.
+// Повні дані — через get_buyer. OrdersCount і OrdersSum — покажчики: поле
+// зникає, лише якщо keyCRM його не повернув, а нуль показується.
 type BuyerSummary struct {
-	ID        int      `json:"id"`
-	FullName  string   `json:"full_name"`
-	Phone     []string `json:"phone,omitempty"`
-	Email     []string `json:"email,omitempty"`
-	CreatedAt string   `json:"created_at,omitempty"`
+	ID          int         `json:"id"`
+	FullName    string      `json:"full_name"`
+	Phone       []string    `json:"phone,omitempty"`
+	Email       []string    `json:"email,omitempty"`
+	OrdersCount *flexNumber `json:"orders_count,omitempty"`
+	OrdersSum   *flexNumber `json:"orders_sum,omitempty"`
+	CreatedAt   string      `json:"created_at,omitempty"`
+}
+
+// flexNumber приймає число як JSON-число або рядок: keyCRM віддає
+// orders_count числом, а orders_sum рядком ("20.00"). Назовні — число.
+type flexNumber float64
+
+func (f *flexNumber) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), `"`)
+	if s == "" || s == "null" {
+		*f = 0
+		return nil
+	}
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return fmt.Errorf("number %s: %w", b, err)
+	}
+	*f = flexNumber(v)
+	return nil
 }
 
 // ListBuyersInput — вхід list_buyers.
@@ -169,7 +191,7 @@ func register(r *server.Registry, d server.Deps) {
 
 	server.Add(r, server.ToolSpec{
 		Name: "list_buyers",
-		Description: "Список покупців keyCRM — компактно: id, ім'я, телефони, email-и, дата створення. Повні дані — get_buyer, " +
+		Description: "Список покупців keyCRM — компактно: id, ім'я, телефони, email-и, кількість і сума замовлень, дата створення. Повні дані — get_buyer, " +
 			"пошук за телефоном чи email — find_buyer. Приклади: {\"limit\": 10}; {\"buyer_id\": [4545, 4546]}; " +
 			`{"created_between": "2026-11-01 00:00:00,2026-11-30 23:59:59"}. Дати в UTC.`,
 		Kind: server.KindRead, OperationIDs: []string{"getPaginatedListOfBuyers"},
@@ -185,7 +207,8 @@ func register(r *server.Registry, d server.Deps) {
 	server.Add(r, server.ToolSpec{
 		Name: "find_buyer",
 		Description: "Знаходить покупця за телефоном або email. Телефон можна писати як завгодно — 067 123 45 67, +38 (067) 123-45-67, " +
-			"380671234567: він зводиться до +380671234567. Замовлення покупця — list_orders з buyer_phone (або buyer_email) з результату. " +
+			"380671234567: він зводиться до +380671234567. Повертає id, ім'я, контакти, orders_count і orders_sum. Замовлення покупця — " +
+			"list_orders з buyer_phone (або buyer_email) з результату; їх може бути більше, ніж orders_count: keyCRM, схоже, рахує не всі (напр. без скасованих). " +
 			`Приклади: {"phone": "067 123 45 67"}; {"email": "ivan@example.com"}.`,
 		Kind: server.KindRead, OperationIDs: []string{"getPaginatedListOfBuyers"},
 	}, func(ctx context.Context, in FindBuyerInput) (FindBuyerResult, error) {

@@ -79,11 +79,20 @@ func TestReadOnlyRegistersOnlyReadTools(t *testing.T) {
 //     й падають, щойно реальна відповідь keyCRM розходиться з api.yaml;
 //   - кожен виклик згенерованого клієнта (d.KeyCRM.API.X(ctx… або c.X(ctx…)
 //     стоїть у тому ж рядку всередині listing.Raw( чи listing.Object(, які
-//     читають і закривають тіло. Через це bodyclose для internal/tools вимкнено.
+//     читають і закривають тіло. Через це bodyclose для internal/tools і
+//     internal/receipts вимкнено.
 func TestToolsCloseResponses(t *testing.T) {
 	typed := regexp.MustCompile(`\.\w+WithResponse\(`)
 	call := regexp.MustCompile(`(listing\.(?:Raw|Object)\((?:\w+\.)*)?\b(?:API|c)\.[A-Z]\w*\(ctx\b`)
-	err := filepath.WalkDir(".", func(path string, d fs.DirEntry, err error) error {
+	// ../receipts — сервіс накладних теж викликає API напряму.
+	for _, root := range []string{".", "../receipts"} {
+		walkSources(t, root, typed, call)
+	}
+}
+
+func walkSources(t *testing.T, root string, typed, call *regexp.Regexp) {
+	t.Helper()
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
 			return err
 		}

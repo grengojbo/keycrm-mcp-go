@@ -77,3 +77,54 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+  mcp-registry:
+    name: MCP Registry
+    needs: goreleaser
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # вхід у MCP Registry через GitHub OIDC, без секрету
+    env:
+      MCP_PUBLISHER_VERSION: v1.8.9
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: образ на GHCR публічний
+        run: |
+          image="$(jq -r '.packages[0].identifier' server.json)"
+          repo="${image#ghcr.io/}"
+          tag="${repo##*:}"
+          repo="${repo%:*}"
+          token="$(curl -fsS "https://ghcr.io/token?scope=repository:${repo}:pull" | jq -r .token || true)"
+          if ! curl -fsS -o /dev/null -H "Authorization: Bearer ${token}" \
+            -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+            "https://ghcr.io/v2/${repo}/manifests/${tag}"; then
+            echo "::error::Образ ${image} недоступний анонімно. Зробіть пакет публічним (Package settings → Change visibility → Public) і перезапустіть цей job."
+            exit 1
+          fi
+
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+
+      - name: завантажити й перевірити mcp-publisher
+        run: |
+          set -euo pipefail
+          archive="mcp-publisher_linux_amd64.tar.gz"
+          base_url="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
+          curl -fsSL -o "$archive" "$base_url/$archive"
+          curl -fsSL -o "$archive.sigstore.json" "$base_url/$archive.sigstore.json"
+          cosign verify-blob \
+            --bundle "$archive.sigstore.json" \
+            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/${MCP_PUBLISHER_VERSION}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "$archive"
+          tar xzf "$archive" mcp-publisher
+          rm -f "$archive" "$archive.sigstore.json"
+
+      - name: вхід у MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: публікація server.json
+        run: ./mcp-publisher publish

@@ -49,8 +49,8 @@ release:
     name: keycrm-mcp-go
   draft: false
   prerelease: auto
-  # Маніфест для MCP Registry додається до релізу; публікує його власник
-  # командою mcp-publisher (див. README, розділ «Реліз»).
+  # Маніфест для MCP Registry додається до релізу; у реєстр його публікує
+  # job mcp-registry у release.yml після цього кроку.
   extra_files:
     - glob: ./server.json
 

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.grengojbo/keycrm-mcp-go",
+  "title": "keyCRM",
+  "description": "keyCRM orders, buyers, catalog, stock and incoming goods with weighted-average cost",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/grengojbo/keycrm-mcp-go",
+  "repository": {
+    "url": "https://github.com/grengojbo/keycrm-mcp-go",
+    "source": "github",
+    "id": "1463277125"
+  },
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/grengojbo/keycrm-mcp-go:0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "KEYCRM_API_KEY",
+          "description": "keyCRM API key (Settings → General → API). Grants full access to your CRM.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "KEYCRM_TOOLSETS",
+          "description": "Comma-separated toolsets or all: orders, buyers, catalog, stock, receipts, reference, payments, files, companies, tasks, pipelines, calls",
+          "default": "all"
+        },
+        {
+          "name": "KEYCRM_READ_ONLY",
+          "description": "true registers read tools only",
+          "format": "boolean",
+          "default": "false"
+        }
+      ]
+    }
+  ]
+}

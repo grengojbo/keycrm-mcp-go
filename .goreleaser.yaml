@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# Реліз keycrm-mcp: бінарники, Homebrew tap, образ на GHCR, server.json для MCP Registry.
+# Перевірка локально: goreleaser check && goreleaser release --snapshot --clean
+version: 2
+
+project_name: keycrm-mcp
+
+builds:
+  - id: keycrm-mcp
+    main: ./cmd/keycrm-mcp
+    binary: keycrm-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: keycrm-mcp
+    ids: [keycrm-mcp]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - README.en.md
+      - CHANGELOG.md
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  # Нотатки релізу пишемо вручну з CHANGELOG.md.
+  disable: true
+
+release:
+  github:
+    owner: grengojbo
+    name: keycrm-mcp-go
+  draft: false
+  prerelease: auto
+  # Маніфест для MCP Registry додається до релізу; публікує його власник
+  # командою mcp-publisher (див. README, розділ «Реліз»).
+  extra_files:
+    - glob: ./server.json
+
+homebrew_casks:
+  - name: keycrm-mcp
+    ids: [keycrm-mcp]
+    binaries: [keycrm-mcp]
+    homepage: https://github.com/grengojbo/keycrm-mcp-go
+    description: MCP-сервер для keyCRM
+    url:
+      verified: github.com/grengojbo/keycrm-mcp-go/
+    repository:
+      owner: grengojbo
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    commit_msg_template: "keycrm-mcp {{ .Tag }}"
+    # Бінарник не підписаний і не нотаризований Apple: знімаємо карантин,
+    # інакше macOS не дасть його запустити.
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/keycrm-mcp"]
+          end
+
+dockers_v2:
+  - id: keycrm-mcp
+    ids: [keycrm-mcp]
+    images:
+      - ghcr.io/grengojbo/keycrm-mcp-go
+    tags:
+      - "{{ .Version }}"
+      - "{{ if not .Prerelease }}latest{{ end }}"
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      # MCP Registry перевіряє цю мітку: вона має збігатися з name у server.json.
+      io.modelcontextprotocol.server.name: io.github.grengojbo/keycrm-mcp-go
+      org.opencontainers.image.title: keycrm-mcp
+      org.opencontainers.image.description: MCP-сервер для keyCRM
+      org.opencontainers.image.source: https://github.com/grengojbo/keycrm-mcp-go
+      org.opencontainers.image.licenses: AGPL-3.0-only
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.created: "{{ .Date }}"

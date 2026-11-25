@@ -19,7 +19,7 @@
 - Безпечний `upload_file`: перевірка IP у момент з'єднання, перевірка редиректів, ліміт 50 МБ, локальні файли лише з `KEYCRM_UPLOAD_DIR`.
 - Маскування персональних даних у логах.
 - README українською й англійською.
-- Реліз через GoReleaser: бінарники для linux, darwin і windows (amd64, arm64), Homebrew tap `grengojbo/tap`, образ `ghcr.io/grengojbo/keycrm-mcp-go` на базі distroless, маніфест `server.json` для MCP Registry.
+- Реліз через GoReleaser: бінарники для linux, darwin і windows (amd64, arm64), Homebrew tap `grengojbo/tap`, образ `ghcr.io/grengojbo/keycrm-mcp-go` на базі distroless, маніфест `server.json`, який `release.yml` публікує в MCP Registry через GitHub OIDC.
 - CI (тести, лінтери, збірка під linux/darwin/windows) і перевірки безпеки (CodeQL, govulncheck, dependency-review, zizmor).
 - Файли для спільноти: CONTRIBUTING, CLA, SECURITY, CODE_OF_CONDUCT, шаблони issue і PR.
 

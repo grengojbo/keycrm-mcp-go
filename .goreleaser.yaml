@@ -60,8 +60,6 @@ homebrew_casks:
     binaries: [keycrm-mcp]
     homepage: https://github.com/grengojbo/keycrm-mcp-go
     description: MCP-сервер для keyCRM
-    url:
-      verified: github.com/grengojbo/keycrm-mcp-go/
     repository:
       owner: grengojbo
       name: homebrew-tap
@@ -71,9 +69,9 @@ homebrew_casks:
     # інакше macOS не дасть його запустити.
     hooks:
       post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/keycrm-mcp"]
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/keycrm-mcp"]
           end
 
 dockers_v2:

@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-26
+
+### Виправлено
+
+- Homebrew більше не показує попереджень при встановленні: cask без застарілих `url.verified` і `postflight`, зняття карантину з бінарника — через `postflight_steps`. Реліз збирається GoReleaser v2.20.1.
+
 ## [0.1.0] - 2026-11-26
 
 Перший публічний реліз.
@@ -23,5 +29,6 @@
 - CI (тести, лінтери, збірка під linux/darwin/windows) і перевірки безпеки (CodeQL, govulncheck, dependency-review, zizmor).
 - Файли для спільноти: CONTRIBUTING, CLA, SECURITY, CODE_OF_CONDUCT, шаблони issue і PR.
 
-[Unreleased]: https://github.com/grengojbo/keycrm-mcp-go/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/grengojbo/keycrm-mcp-go/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/grengojbo/keycrm-mcp-go/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/grengojbo/keycrm-mcp-go/releases/tag/v0.1.0

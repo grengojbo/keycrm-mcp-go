@@ -3,7 +3,7 @@
   "name": "io.github.grengojbo/keycrm-mcp-go",
   "title": "keyCRM",
   "description": "keyCRM orders, buyers, catalog, stock and incoming goods with weighted-average cost",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "websiteUrl": "https://github.com/grengojbo/keycrm-mcp-go",
   "repository": {
     "url": "https://github.com/grengojbo/keycrm-mcp-go",
@@ -13,7 +13,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/grengojbo/keycrm-mcp-go:0.1.0",
+      "identifier": "ghcr.io/grengojbo/keycrm-mcp-go:0.1.1",
       "transport": {
         "type": "stdio"
       },

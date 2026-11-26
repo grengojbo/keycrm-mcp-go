@@ -39,9 +39,9 @@ checksum:
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
-changelog:
-  # Нотатки релізу пишемо вручну з CHANGELOG.md.
-  disable: true
+# Нотатки релізу release.yml бере з CHANGELOG.md і передає через --release-notes.
+# Секцію changelog не вимикати: changelog.disable вимикає і --release-notes,
+# і опис релізу лишається порожнім.
 
 release:
   github:
